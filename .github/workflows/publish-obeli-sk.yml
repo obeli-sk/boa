@@ -1,0 +1,66 @@
+name: Publish obeli-sk fork to crates.io
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: >
+          Version to publish, e.g. `1.0.0-obeli-sk.1`.
+          Must be unique on crates.io — bump the trailing number for re-publishes.
+        required: true
+        type: string
+      dry_run:
+        description: Dry run — package but do not upload to crates.io
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish crates
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
+
+      - name: Cache Cargo registry
+        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        with:
+          cache-on-failure: true
+
+      - name: Rename crates and set version
+        run: python3 scripts/rename_for_obeli_sk.py "${{ inputs.version }}"
+
+      - name: Verify rename output
+        run: |
+          echo "=== Workspace version ==="
+          grep '^version' Cargo.toml | head -3
+          echo "=== Sample workspace dep (boa_engine) ==="
+          grep 'boa_engine' Cargo.toml | head -5
+          echo "=== Sample package name (core/engine) ==="
+          grep '^name' core/engine/Cargo.toml | head -2
+
+      # --no-verify skips a local test-build from the registry, avoiding the
+      # chicken-and-egg problem when a freshly uploaded crate isn't yet indexed.
+      # cargo publish --workspace resolves topological order automatically and
+      # skips publish=false crates (behavior stabilized in Cargo 1.90; boa's
+      # rust-version = "1.91.0" guarantees this).
+      - name: Publish crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}
+        run: |
+          FLAGS="--no-verify --allow-dirty"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="$FLAGS --dry-run"
+            echo "DRY RUN — crates will not actually be uploaded."
+          fi
+          # shellcheck disable=SC2086
+          cargo publish --workspace $FLAGS
