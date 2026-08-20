@@ -1,5 +1,5 @@
 [package]
-name = "boa_gc"
+name = "obeli-sk-boa-gc"
 description = "Garbage collector for the Boa JavaScript engine."
 keywords = ["javascript", "js", "garbage", "memory"]
 categories = ["command-line-utilities"]

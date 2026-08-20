@@ -1,5 +1,6 @@
 [package]
 name = "boa_cli"
+publish = false
 keywords = ["javascript", "compiler", "js", "cli"]
 categories = ["command-line-utilities"]
 default-run = "boa"

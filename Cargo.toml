@@ -26,7 +26,7 @@ exclude = [
 
 [workspace.package]
 edition = "2024"
-version = "1.0.0-dev"
+version = "1.0.0-obeli-sk.10"
 rust-version = "1.91.0"
 authors = ["boa-dev"]
 repository = "https://github.com/boa-dev/boa"
@@ -36,20 +36,20 @@ description = "Boa is a Javascript lexer, parser and compiler written in Rust. C
 [workspace.dependencies]
 
 # Repo Crates
-boa_ast = { version = "~1.0.0-dev", path = "core/ast" }
-boa_engine = { version = "~1.0.0-dev", path = "core/engine", default-features = false }
-boa_gc = { version = "~1.0.0-dev", path = "core/gc" }
-boa_icu_provider = { version = "~1.0.0-dev", path = "core/icu_provider" }
-boa_interner = { version = "~1.0.0-dev", path = "core/interner" }
-boa_macros = { version = "~1.0.0-dev", path = "core/macros" }
-boa_parser = { version = "~1.0.0-dev", path = "core/parser" }
-boa_runtime = { version = "~1.0.0-dev", path = "core/runtime" }
-boa_string = { version = "~1.0.0-dev", path = "core/string" }
-boa_wintertc = { version = "~1.0.0-dev", path = "core/wintertc" }
+boa_ast = { package = "obeli-sk-boa-ast", version = "1.0.0-obeli-sk.10", path = "core/ast" }
+boa_engine = { package = "obeli-sk-boa-engine", version = "1.0.0-obeli-sk.10", path = "core/engine", default-features = false }
+boa_gc = { package = "obeli-sk-boa-gc", version = "1.0.0-obeli-sk.10", path = "core/gc" }
+boa_icu_provider = { package = "obeli-sk-boa-icu-provider", version = "1.0.0-obeli-sk.10", path = "core/icu_provider" }
+boa_interner = { package = "obeli-sk-boa-interner", version = "1.0.0-obeli-sk.10", path = "core/interner" }
+boa_macros = { package = "obeli-sk-boa-macros", version = "1.0.0-obeli-sk.10", path = "core/macros" }
+boa_parser = { package = "obeli-sk-boa-parser", version = "1.0.0-obeli-sk.10", path = "core/parser" }
+boa_runtime = { package = "obeli-sk-boa-runtime", version = "1.0.0-obeli-sk.10", path = "core/runtime" }
+boa_string = { package = "obeli-sk-boa-string", version = "1.0.0-obeli-sk.10", path = "core/string" }
+boa_wintertc = { package = "obeli-sk-boa-wintertc", version = "1.0.0-obeli-sk.10", path = "core/wintertc" }
 
 # Utility Repo Crates
-tag_ptr = { version = "~0.1.0", path = "utils/tag_ptr" }
-small_btree = { version = "~0.1.0", path = "utils/small_btree" }
+tag_ptr = { package = "obeli-sk-tag-ptr", version = "1.0.0-obeli-sk.10", path = "utils/tag_ptr" }
+small_btree = { package = "obeli-sk-small-btree", version = "1.0.0-obeli-sk.10", path = "utils/small_btree" }
 
 # Shared deps
 arbitrary = "1"
