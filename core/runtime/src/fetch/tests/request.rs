@@ -2,7 +2,7 @@ use super::TestFetcher;
 use crate::fetch::request::JsRequest;
 use crate::fetch::response::JsResponse;
 use crate::test::{TestAction, run_test_actions};
-use boa_engine::{JsObject, js_str, js_string};
+use boa_engine::{JsObject, class::Class, js_str, js_string};
 use either::Either;
 use http::{Response, Uri};
 use indoc::indoc;
@@ -479,4 +479,62 @@ fn request_getters() {
                 .expect("request getter assertions should pass");
         }),
     ]);
+}
+
+#[test]
+fn lazy_request_body_is_shared_by_concurrent_consumers() {
+    run_test_actions([
+        TestAction::harness(),
+        TestAction::inspect_context(|ctx| {
+            crate::fetch::register(TestFetcher::default(), None, ctx)
+                .expect("failed to register fetch");
+            let request = http::Request::builder()
+                .method("POST")
+                .uri("http://unit.test")
+                .body(Vec::new())
+                .unwrap();
+            let request = JsRequest::with_lazy_body(
+                request,
+                async {
+                    futures_lite::future::yield_now().await;
+                    br#"{"value":42}"#.to_vec()
+                },
+                ctx,
+            );
+            let request = JsRequest::from_data(request, ctx).unwrap();
+            ctx.global_object()
+                .set(js_string!("request"), request, false, ctx)
+                .unwrap();
+        }),
+        TestAction::run(indoc! {r#"
+            globalThis.done = Promise.all([request.text(), request.json()]).then(
+                ([text, json]) => {
+                    assertEq(text, '{"value":42}');
+                    assertEq(json.value, 42);
+                }
+            );
+        "#}),
+        TestAction::inspect_context(|ctx| {
+            let done = ctx.global_object().get(js_str!("done"), ctx).unwrap();
+            done.as_promise()
+                .unwrap()
+                .await_blocking(ctx)
+                .expect("concurrent body consumers should resolve");
+        }),
+    ]);
+}
+
+#[test]
+fn into_inner_resolves_lazy_body() {
+    run_test_actions([TestAction::inspect_context_async(async |ctx| {
+        let request = http::Request::builder()
+            .method("POST")
+            .uri("http://unit.test")
+            .body(Vec::new())
+            .unwrap();
+        let request = JsRequest::with_lazy_body(request, async { b"request body".to_vec() }, ctx);
+        let context = std::cell::RefCell::new(ctx);
+        let request = request.into_inner(&context).await.unwrap();
+        assert_eq!(request.body(), b"request body");
+    })]);
 }

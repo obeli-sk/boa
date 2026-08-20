@@ -35,24 +35,24 @@ pub struct BlockingReqwestFetcher {
 
 #[cfg(feature = "reqwest-blocking")]
 impl Fetcher for BlockingReqwestFetcher {
-    fn fetch(
+    async fn fetch(
         self: Rc<Self>,
         request: JsRequest,
         signal: Option<JsObject>,
-        _context: &RefCell<&mut Context>,
-    ) -> impl Future<Output = JsResult<JsResponse>> {
+        context: &RefCell<&mut Context>,
+    ) -> JsResult<JsResponse> {
         use boa_engine::{JsError, JsString};
 
         if let Some(ref sig) = signal
             && let Some(sig_ref) = sig.downcast_ref::<crate::abort::JsAbortSignal>()
             && sig_ref.is_aborted()
         {
-            return future::ready(Err(JsError::from_opaque(
+            return Err(JsError::from_opaque(
                 boa_engine::js_string!("AbortError").into(),
-            )));
+            ));
         }
 
-        let request = request.into_inner();
+        let request = request.into_inner(context).await?;
         let url = request.uri().to_string();
         let req = self
             .client
@@ -65,28 +65,28 @@ impl Fetcher for BlockingReqwestFetcher {
             .map_err(JsError::from_rust)
         {
             Ok(req) => req,
-            Err(err) => return future::ready(Err(err)),
+            Err(err) => return Err(err),
         };
 
         let resp = match self.client.execute(req).map_err(JsError::from_rust) {
             Ok(resp) => resp,
-            Err(err) => return future::ready(Err(err)),
+            Err(err) => return Err(err),
         };
 
         if let Some(ref sig) = signal
             && let Some(sig_ref) = sig.downcast_ref::<crate::abort::JsAbortSignal>()
             && sig_ref.is_aborted()
         {
-            return future::ready(Err(JsError::from_opaque(
+            return Err(JsError::from_opaque(
                 boa_engine::js_string!("AbortError").into(),
-            )));
+            ));
         }
 
         let status = resp.status();
         let headers = resp.headers().clone();
         let bytes = match resp.bytes().map_err(JsError::from_rust) {
             Ok(bytes) => bytes,
-            Err(err) => return future::ready(Err(err)),
+            Err(err) => return Err(err),
         };
         let mut builder = http::Response::builder().status(status.as_u16());
 
@@ -96,11 +96,9 @@ impl Fetcher for BlockingReqwestFetcher {
             }
         }
 
-        future::ready(
-            builder
-                .body(bytes.to_vec())
-                .map_err(JsError::from_rust)
-                .map(|request| JsResponse::basic(JsString::from(url), request)),
-        )
+        builder
+            .body(bytes.to_vec())
+            .map_err(JsError::from_rust)
+            .map(|request| JsResponse::basic(JsString::from(url), request))
     }
 }
