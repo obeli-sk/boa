@@ -42,9 +42,9 @@ impl crate::fetch::Fetcher for TestFetcher {
         self: Rc<Self>,
         request: JsRequest,
         _signal: Option<boa_engine::JsObject>,
-        _context: &RefCell<&mut Context>,
+        context: &RefCell<&mut Context>,
     ) -> JsResult<JsResponse> {
-        let request = request.into_inner();
+        let request = request.into_inner(context).await?;
         self.requests_received.borrow_mut().push(request.clone());
         let url = request.uri();
         self.request_mapper

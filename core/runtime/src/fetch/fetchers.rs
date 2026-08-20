@@ -36,7 +36,7 @@ impl Fetcher for BlockingReqwestFetcher {
         self: Rc<Self>,
         request: JsRequest,
         signal: Option<JsObject>,
-        _context: &RefCell<&mut Context>,
+        context: &RefCell<&mut Context>,
     ) -> JsResult<JsResponse> {
         use boa_engine::{JsError, JsString};
 
@@ -49,7 +49,7 @@ impl Fetcher for BlockingReqwestFetcher {
             ));
         }
 
-        let request = request.into_inner();
+        let request = request.into_inner(context).await?;
         let url = request.uri().to_string();
         let req = self
             .client
