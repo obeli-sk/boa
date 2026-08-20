@@ -99,7 +99,8 @@ for old_name, new_name in RENAMES.items():
         print(f"WARNING: {cargo_toml} not found, skipping")
         continue
 
-    content = cargo_toml.read_text()
+    original_content = cargo_toml.read_text()
+    content = original_content
     # If the crate has a hardcoded version (not version.workspace = true), update it.
     content = re.sub(
         r'^(version\s*=\s*)"[^"]+"',
@@ -108,11 +109,10 @@ for old_name, new_name in RENAMES.items():
         count=1,
         flags=re.MULTILINE,
     )
-    # count=1: only replace the first occurrence, which is [package] name.
-    # Other sections (e.g. [lib]) may also have a `name` field that must
-    # keep the original underscore form (lib target names cannot have hyphens).
+    # Scope the replacement to [package]. Other sections (e.g. [lib]) may also
+    # have a `name` field that must keep the original underscore form.
     updated = re.sub(
-        rf'^(name\s*=\s*)"({re.escape(old_name)})"',
+        rf'(^\[package\]\s*$\n(?:(?!^\[).*$\n)*?^name\s*=\s*)"{re.escape(old_name)}"',
         rf'\1"{new_name}"',
         content,
         count=1,
@@ -121,7 +121,29 @@ for old_name, new_name in RENAMES.items():
     if updated == content:
         print(f"WARNING: no name replacement made in {cargo_toml}")
     else:
-        cargo_toml.write_text(updated)
         print(f"  {old_name!s:30s} -> {new_name}")
+    if updated != original_content:
+        cargo_toml.write_text(updated)
+
+# ── 3. Exclude the CLI from publishing ───────────────────────────────────────
+# `boa_cli` is not renamed and its crates.io name is owned by upstream, so a
+# `cargo publish --workspace` would fail trying to upload it. Mark it
+# `publish = false` so only the renamed obeli-sk-boa-* library crates are sent.
+
+cli_cargo = root / "cli" / "Cargo.toml"
+if cli_cargo.exists():
+    content = cli_cargo.read_text()
+    if re.search(r'^\s*publish\s*=', content, flags=re.MULTILINE):
+        print("  boa_cli already has a publish setting, leaving as-is")
+    else:
+        content = re.sub(
+            r'(^\[package\]\n(?:.*\n)*?name\s*=\s*"boa_cli"\n)',
+            r'\1publish = false\n',
+            content,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        cli_cargo.write_text(content)
+        print("  boa_cli                        -> publish = false")
 
 print(f"\nDone. Version set to {version!r}.")
