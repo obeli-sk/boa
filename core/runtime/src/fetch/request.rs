@@ -12,7 +12,58 @@ use boa_engine::{
     boa_class, js_error,
 };
 use either::Either;
+use futures::future::{FutureExt, LocalBoxFuture, Shared};
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::future::Future;
 use std::mem;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+struct BodyId(u64);
+
+type PendingBody = Shared<LocalBoxFuture<'static, JsResult<Vec<u8>>>>;
+
+#[derive(Default)]
+struct PendingRequestBodies {
+    next_id: u64,
+    bodies: HashMap<BodyId, PendingBody>,
+}
+
+impl PendingRequestBodies {
+    fn insert(&mut self, body: PendingBody) -> BodyId {
+        loop {
+            let id = BodyId(self.next_id);
+            self.next_id = self.next_id.wrapping_add(1);
+            if let std::collections::hash_map::Entry::Vacant(entry) = self.bodies.entry(id) {
+                entry.insert(body);
+                return id;
+            }
+        }
+    }
+}
+
+#[derive(Clone)]
+enum BodySource {
+    Buffered(Vec<u8>),
+    Pending(BodyId),
+}
+
+async fn resolve_body(source: BodySource, context: &RefCell<&mut Context>) -> JsResult<Vec<u8>> {
+    let id = match source {
+        BodySource::Buffered(body) => return Ok(body),
+        BodySource::Pending(id) => id,
+    };
+
+    let body = context
+        .borrow_mut()
+        .host_defined_mut()
+        .get_mut::<PendingRequestBodies>()
+        .and_then(|bodies| bodies.bodies.get(&id))
+        .cloned()
+        .ok_or_else(|| js_error!(Error: "Pending request body is not registered"))?;
+
+    body.await
+}
 
 /// A [RequestInit][mdn] object. This is a JavaScript object (not a
 /// class) that can be used as options for creating a [`JsRequest`].
@@ -28,6 +79,12 @@ pub struct RequestInit {
 }
 
 impl RequestInit {
+    /// Returns whether the initializer provides a body override.
+    #[must_use]
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+
     /// Takes the abort signal from the options, if present.
     pub fn take_signal(&mut self) -> Option<JsObject> {
         self.signal.take()
@@ -129,24 +186,51 @@ pub struct JsRequest {
     #[unsafe_ignore_trace]
     inner: HttpRequest<Option<Vec<u8>>>,
     signal: Option<JsObject>,
+    #[unsafe_ignore_trace]
+    pending_body: Option<BodyId>,
 }
 
 impl JsRequest {
-    /// Get the inner `http::Request` object.
-    pub fn into_inner(mut self) -> HttpRequest<Option<Vec<u8>>> {
-        mem::replace(&mut self.inner, HttpRequest::new(None))
+    /// Resolve the body and return the inner HTTP request.
+    ///
+    /// # Errors
+    /// Returns an error if resolving a pending body fails.
+    pub async fn into_inner(
+        mut self,
+        context: &RefCell<&mut Context>,
+    ) -> JsResult<HttpRequest<Option<Vec<u8>>>> {
+        if self.pending_body.is_some() {
+            let body = resolve_body(self.body_source(), context).await?;
+            *self.inner.body_mut() = Some(body);
+        }
+        Ok(mem::replace(&mut self.inner, HttpRequest::new(None)))
     }
 
-    /// Split this request into its HTTP request and abort signal.
-    fn into_parts(mut self) -> (HttpRequest<Option<Vec<u8>>>, Option<JsObject>) {
+    /// Split this request into its HTTP request, abort signal, and pending body ID.
+    fn into_parts(
+        mut self,
+    ) -> (
+        HttpRequest<Option<Vec<u8>>>,
+        Option<JsObject>,
+        Option<BodyId>,
+    ) {
         let request = mem::replace(&mut self.inner, HttpRequest::new(None));
         let signal = self.signal.take();
-        (request, signal)
+        (request, signal, self.pending_body)
     }
 
     /// Get a reference to the inner `http::Request` object.
     pub fn inner(&self) -> &HttpRequest<Option<Vec<u8>>> {
         &self.inner
+    }
+
+    /// Return buffered body bytes, or `None` if the body is absent or pending.
+    #[must_use]
+    pub fn body_bytes(&self) -> Option<Vec<u8>> {
+        self.pending_body
+            .is_none()
+            .then(|| self.inner.body().clone())
+            .flatten()
     }
 
     /// Get the abort signal associated with this request, if any.
@@ -168,7 +252,7 @@ impl JsRequest {
         input: Either<JsString, JsRequest>,
         options: Option<RequestInit>,
     ) -> JsResult<Self> {
-        let (request, signal) = match input {
+        let (request, signal, pending_body) = match input {
             Either::Left(uri) => {
                 let uri = http::Uri::try_from(
                     uri.to_std_string()
@@ -179,21 +263,63 @@ impl JsRequest {
                     .uri(uri)
                     .body(None)
                     .map_err(|_| js_error!(Error: "Cannot construct request"))?;
-                (request, None)
+                (request, None, None)
             }
             Either::Right(r) => r.into_parts(),
         };
 
         if let Some(mut options) = options {
             let signal = options.take_signal().or(signal);
+            let has_body = options.has_body();
             let inner = options.into_request_builder(Some(request))?;
-            Ok(Self { inner, signal })
+            Ok(Self {
+                inner,
+                signal,
+                pending_body: if has_body { None } else { pending_body },
+            })
         } else {
             Ok(Self {
                 inner: request,
                 signal,
+                pending_body,
             })
         }
+    }
+
+    /// Create a request whose body is read asynchronously when first consumed.
+    pub fn with_lazy_body(
+        head: HttpRequest<Vec<u8>>,
+        body: impl Future<Output = Vec<u8>> + 'static,
+        context: &mut Context,
+    ) -> Self {
+        Self::try_with_lazy_body(head, async move { Ok(body.await) }, context)
+    }
+
+    /// Create a request whose body can fail while being read asynchronously.
+    pub fn try_with_lazy_body(
+        head: HttpRequest<Vec<u8>>,
+        body: impl Future<Output = JsResult<Vec<u8>>> + 'static,
+        context: &mut Context,
+    ) -> Self {
+        let mut bodies = context
+            .remove_data::<PendingRequestBodies>()
+            .unwrap_or_default();
+        let pending_body = bodies.insert(body.boxed_local().shared());
+        context.insert_data(*bodies);
+        let head = head.map(|_| Some(Vec::new()));
+
+        Self {
+            inner: head,
+            signal: None,
+            pending_body: Some(pending_body),
+        }
+    }
+
+    fn body_source(&self) -> BodySource {
+        self.pending_body.map_or_else(
+            || BodySource::Buffered(self.inner.body().clone().unwrap_or_default()),
+            BodySource::Pending,
+        )
     }
 }
 
@@ -202,6 +328,7 @@ impl From<HttpRequest<Option<Vec<u8>>>> for JsRequest {
         Self {
             inner,
             signal: None,
+            pending_body: None,
         }
     }
 }
@@ -267,9 +394,10 @@ impl JsRequest {
     ///
     /// See <https://fetch.spec.whatwg.org/#dom-body-text>
     fn text(&self, context: &mut Context) -> JsPromise {
-        let body = self.inner.body().clone().unwrap_or_default();
+        let body = self.body_source();
         JsPromise::from_async_fn(
-            async move |_| {
+            async move |context| {
+                let body = resolve_body(body, context).await?;
                 let text = String::from_utf8_lossy(&body);
                 Ok(JsString::from(text.as_ref()).into())
             },
@@ -283,9 +411,10 @@ impl JsRequest {
     ///
     /// See <https://fetch.spec.whatwg.org/#dom-body-json>
     fn json(&self, context: &mut Context) -> JsPromise {
-        let body = self.inner.body().clone().unwrap_or_default();
+        let body = self.body_source();
         JsPromise::from_async_fn(
             async move |context| {
+                let body = resolve_body(body, context).await?;
                 let json_str = String::from_utf8_lossy(&body);
                 let json = serde_json::from_str::<serde_json::Value>(&json_str)
                     .map_err(|e| JsNativeError::syntax().with_message(e.to_string()))?;
@@ -305,7 +434,7 @@ impl JsRequest {
     ///
     /// See <https://fetch.spec.whatwg.org/#dom-body-formdata>
     fn form_data(&self, context: &mut Context) -> JsPromise {
-        let body = self.inner.body().clone().unwrap_or_default();
+        let body = self.body_source();
         let content_type = self
             .inner
             .headers()
@@ -328,6 +457,7 @@ impl JsRequest {
                         .into());
                 }
 
+                let body = resolve_body(body, context).await?;
                 let ctx = &mut context.borrow_mut();
                 let form_obj = JsObject::default(ctx.intrinsics());
 
