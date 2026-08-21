@@ -378,6 +378,15 @@ fn request_getters() {
                 const json = await request.json();
                 assertEq(json.a, 1);
                 assertEq(json.b[1], 3);
+
+                const form = new Request("http://unit.test/form", {
+                    method: "POST",
+                    headers: { "content-type": "application/x-www-form-urlencoded" },
+                    body: "a=1&b=two",
+                });
+                const fields = await form.formData();
+                assertEq(fields.a, "1");
+                assertEq(fields.b, "two");
             })();
         "#}),
         TestAction::inspect_context(|ctx| {
@@ -446,4 +455,46 @@ fn into_inner_resolves_lazy_body() {
         let request = request.into_inner(&context).await.unwrap();
         assert_eq!(request.body(), b"request body");
     })]);
+}
+
+#[test]
+fn form_data_resolves_lazy_url_encoded_body() {
+    run_test_actions([
+        TestAction::harness(),
+        TestAction::inspect_context(|ctx| {
+            crate::fetch::register(TestFetcher::default(), None, ctx)
+                .expect("failed to register fetch");
+            let request = http::Request::builder()
+                .method("POST")
+                .uri("http://unit.test/form")
+                .header("content-type", "application/x-www-form-urlencoded")
+                .body(Vec::new())
+                .unwrap();
+            let request = JsRequest::with_lazy_body(
+                request,
+                async {
+                    futures_lite::future::yield_now().await;
+                    b"a=1&b=two".to_vec()
+                },
+                ctx,
+            );
+            let request = JsRequest::from_data(request, ctx).unwrap();
+            ctx.global_object()
+                .set(js_string!("request"), request, false, ctx)
+                .unwrap();
+        }),
+        TestAction::run(indoc! {r#"
+            globalThis.done = request.formData().then(fields => {
+                assertEq(fields.a, "1");
+                assertEq(fields.b, "two");
+            });
+        "#}),
+        TestAction::inspect_context(|ctx| {
+            let done = ctx.global_object().get(js_str!("done"), ctx).unwrap();
+            done.as_promise()
+                .unwrap()
+                .await_blocking(ctx)
+                .expect("lazy URL-encoded body should resolve");
+        }),
+    ]);
 }

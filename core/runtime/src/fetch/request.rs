@@ -402,4 +402,46 @@ impl JsRequest {
             context,
         )
     }
+
+    /// Reads a URL-encoded request body into a plain object.
+    fn form_data(&self, context: &mut Context) -> JsPromise {
+        let body = self.body_source();
+        let content_type = self
+            .inner
+            .headers()
+            .get("content-type")
+            .and_then(|value| value.to_str().ok())
+            .map(str::to_string);
+
+        JsPromise::from_async_fn(
+            async move |context| {
+                if !content_type
+                    .as_deref()
+                    .is_none_or(|value| value.starts_with("application/x-www-form-urlencoded"))
+                {
+                    return Err(JsNativeError::typ()
+                        .with_message(
+                            "formData() only supports application/x-www-form-urlencoded bodies",
+                        )
+                        .into());
+                }
+
+                let body = resolve_body(body, context).await?;
+                let context = &mut context.borrow_mut();
+                let form = JsObject::default(context.intrinsics());
+
+                for (key, value) in form_urlencoded_parser::parse(&body) {
+                    form.set(
+                        JsString::from(key.as_ref()),
+                        JsString::from(value.as_ref()),
+                        false,
+                        context,
+                    )?;
+                }
+
+                Ok(form.into())
+            },
+            context,
+        )
+    }
 }
