@@ -1,10 +1,10 @@
 [package]
-name = "small_btree"
+name = "obeli-sk-small-btree"
 keywords = ["small", "map"]
 categories = ["data-structures"]
 readme = "../../README.md"
 description = "Utility library that add SmallBTreeMap data structure"
-version = "0.1.0"
+version = "1.0.0-obeli-sk.11"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true

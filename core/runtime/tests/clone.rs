@@ -1,15 +1,15 @@
 #![allow(unused_crate_dependencies, missing_docs)]
 
 use boa_engine::{Context, Source};
-use boa_runtime::RuntimeExtension;
+use obeli_sk_boa_runtime::RuntimeExtension;
 use rstest::rstest;
 use std::path::PathBuf;
 
 #[rstest]
 fn clone(#[files("tests/clone/**/*.js")] path: PathBuf) {
     let context = &mut Context::default();
-    boa_runtime::clone::register(None, context).expect("Could not register runtime");
-    boa_runtime::extensions::ConsoleExtension::default()
+    obeli_sk_boa_runtime::clone::register(None, context).expect("Could not register runtime");
+    obeli_sk_boa_runtime::extensions::ConsoleExtension::default()
         .register(None, context)
         .expect("Could not register console");
 
