@@ -1,5 +1,5 @@
 [package]
-name = "boa_ast"
+name = "obeli-sk-boa-ast"
 description = "Abstract Syntax Tree definition for the Boa JavaScript engine."
 keywords = ["javascript", "js", "syntax", "ast"]
 categories = ["parser-implementations", "compilers"]

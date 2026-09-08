@@ -1,5 +1,5 @@
 [package]
-name = "boa_interner"
+name = "obeli-sk-boa-interner"
 description = "String interner for the Boa JavaScript engine."
 keywords = ["javascript", "js", "string", "interner"]
 categories = ["data-structures", "no-std"]

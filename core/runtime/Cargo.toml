@@ -1,5 +1,5 @@
 [package]
-name = "boa_runtime"
+name = "obeli-sk-boa-runtime"
 description = "Example runtime for the Boa JavaScript engine."
 keywords = ["javascript", "js", "runtime"]
 categories = ["command-line-utilities"]

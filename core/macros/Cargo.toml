@@ -1,5 +1,5 @@
 [package]
-name = "boa_macros"
+name = "obeli-sk-boa-macros"
 description = "Macros for the Boa JavaScript engine."
 version.workspace = true
 edition.workspace = true
