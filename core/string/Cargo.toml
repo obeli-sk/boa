@@ -1,5 +1,5 @@
 [package]
-name = "boa_string"
+name = "obeli-sk-boa-string"
 keywords = ["javascript", "js", "string"]
 categories = ["parser-implementations", "compilers"]
 readme = "../../README.md"

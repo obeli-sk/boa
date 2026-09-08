@@ -322,43 +322,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "boa_ast"
-version = "0.22.0"
-dependencies = [
- "arbitrary",
- "bitflags",
- "boa_interner",
- "boa_macros",
- "boa_string",
- "indexmap",
- "num-bigint 0.5.1",
- "rustc-hash 2.1.3",
- "serde",
- "strum",
-]
-
-[[package]]
 name = "boa_benches"
 version = "0.1.0"
 dependencies = [
- "boa_engine",
- "boa_runtime",
  "criterion",
  "jemallocator",
  "mimalloc-safe",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-runtime",
  "regex",
  "walkdir",
 ]
 
 [[package]]
 name = "boa_cli"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
  "async-channel",
- "boa_engine",
- "boa_gc",
- "boa_parser",
- "boa_runtime",
  "clap",
  "color-eyre",
  "colored",
@@ -367,6 +347,10 @@ dependencies = [
  "futures-concurrency",
  "jemallocator",
  "mimalloc-safe",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-gc",
+ "obeli-sk-boa-parser",
+ "obeli-sk-boa-runtime",
  "phf",
  "regex",
  "rustls",
@@ -377,102 +361,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "boa_engine"
-version = "0.22.0"
-dependencies = [
- "aligned-vec",
- "arrayvec",
- "async-channel",
- "bitflags",
- "boa_ast",
- "boa_gc",
- "boa_icu_provider",
- "boa_interner",
- "boa_macros",
- "boa_parser",
- "boa_string",
- "bytemuck",
- "cfg-if",
- "cow-utils",
- "criterion",
- "dashmap",
- "data-encoding",
- "data-encoding-macro",
- "dynify",
- "either",
- "fast-float2",
- "fixed_decimal",
- "float-cmp",
- "float16",
- "futures-concurrency",
- "futures-lite",
- "getrandom 0.4.3",
- "hashbrown 0.17.1",
- "husky-rs",
- "iana-time-zone",
- "icu_calendar",
- "icu_casemap",
- "icu_collator",
- "icu_datetime",
- "icu_decimal",
- "icu_list",
- "icu_locale",
- "icu_normalizer",
- "icu_plurals",
- "icu_provider",
- "icu_segmenter",
- "icu_time",
- "indexmap",
- "indoc",
- "intrusive-collections",
- "itertools 0.15.0",
- "jemallocator",
- "lz4_flex",
- "num-bigint 0.5.1",
- "num-integer",
- "num-traits",
- "num_enum",
- "oneshot",
- "pastey",
- "portable-atomic",
- "rand",
- "regress",
- "rustc-hash 2.1.3",
- "ryu-js",
- "serde",
- "serde_json",
- "small_btree",
- "static_assertions",
- "sys-locale",
- "tag_ptr",
- "tap",
- "temporal_rs",
- "test-case",
- "textwrap",
- "thin-vec",
- "thiserror",
- "time",
- "timezone_provider",
- "tinystr",
- "web-time",
- "writeable",
- "xsum",
- "yoke",
- "zerofrom",
-]
-
-[[package]]
 name = "boa_examples"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
- "boa_ast",
- "boa_engine",
- "boa_gc",
- "boa_interner",
- "boa_parser",
- "boa_runtime",
  "futures-concurrency",
  "futures-lite",
+ "obeli-sk-boa-ast",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-gc",
+ "obeli-sk-boa-interner",
+ "obeli-sk-boa-parser",
+ "obeli-sk-boa-runtime",
  "reqwest",
  "rustls",
  "smol",
@@ -481,146 +380,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "boa_gc"
-version = "0.22.0"
-dependencies = [
- "arrayvec",
- "boa_macros",
- "boa_string",
- "either",
- "hashbrown 0.17.1",
- "icu_locale_core",
- "thin-vec",
-]
-
-[[package]]
-name = "boa_icu_provider"
-version = "0.22.0"
-dependencies = [
- "icu_calendar",
- "icu_casemap",
- "icu_collator",
- "icu_datetime",
- "icu_decimal",
- "icu_list",
- "icu_locale",
- "icu_locale_fallback",
- "icu_normalizer",
- "icu_plurals",
- "icu_provider",
- "icu_provider_adapters",
- "icu_provider_blob",
- "icu_segmenter",
- "icu_time",
- "once_cell",
- "pastey",
-]
-
-[[package]]
-name = "boa_interner"
-version = "0.22.0"
-dependencies = [
- "arbitrary",
- "boa_gc",
- "boa_macros",
- "hashbrown 0.17.1",
- "indexmap",
- "once_cell",
- "phf",
- "rustc-hash 2.1.3",
- "serde",
- "static_assertions",
-]
-
-[[package]]
-name = "boa_macros"
-version = "0.22.0"
-dependencies = [
- "cfg-if",
- "cow-utils",
- "lz4_flex",
- "proc-macro2",
- "quote",
- "syn 3.0.4",
- "synstructure 0.14.0",
- "test-case",
-]
-
-[[package]]
 name = "boa_macros_tests"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
- "boa_engine",
- "boa_gc",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-gc",
  "trybuild",
 ]
 
 [[package]]
-name = "boa_parser"
-version = "0.22.0"
-dependencies = [
- "bitflags",
- "boa_ast",
- "boa_interner",
- "boa_macros",
- "fast-float2",
- "icu_properties",
- "indoc",
- "num-bigint 0.5.1",
- "num-traits",
- "regress",
- "rustc-hash 2.1.3",
- "strum",
-]
-
-[[package]]
-name = "boa_runtime"
-version = "0.22.0"
-dependencies = [
- "boa_engine",
- "boa_gc",
- "boa_wintertc",
- "bus",
- "bytemuck",
- "either",
- "futures",
- "futures-lite",
- "http",
- "indoc",
- "reqwest",
- "rstest",
- "rustc-hash 2.1.3",
- "serde_json",
- "temp-env",
- "test-case",
- "textwrap",
- "url",
-]
-
-[[package]]
-name = "boa_string"
-version = "0.22.0"
-dependencies = [
- "fast-float2",
- "itoa",
- "pastey",
- "rustc-hash 2.1.3",
- "ryu-js",
- "static_assertions",
-]
-
-[[package]]
 name = "boa_tester"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
  "bitflags",
- "boa_engine",
- "boa_runtime",
  "clap",
  "color-eyre",
  "colored",
  "comfy-table",
  "cow-utils",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-runtime",
  "phf",
  "rayon",
  "rustc-hash 2.1.3",
@@ -633,26 +412,12 @@ dependencies = [
 
 [[package]]
 name = "boa_wasm"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
- "boa_engine",
  "console_error_panic_hook",
+ "obeli-sk-boa-engine",
  "wasm-bindgen",
  "wasm-bindgen-test",
-]
-
-[[package]]
-name = "boa_wintertc"
-version = "0.22.0"
-dependencies = [
- "base64 0.23.1",
- "boa_engine",
- "boa_gc",
- "comfy-table",
- "futures-lite",
- "indoc",
- "rustc-hash 2.1.3",
- "textwrap",
 ]
 
 [[package]]
@@ -1569,7 +1334,7 @@ dependencies = [
 
 [[package]]
 name = "gen-icu4x-data"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
  "icu_calendar",
  "icu_casemap",
@@ -2358,10 +2123,10 @@ dependencies = [
 
 [[package]]
 name = "insta-bytecode"
-version = "0.22.0"
+version = "1.0.0-obeli-sk.12"
 dependencies = [
- "boa_engine",
  "insta",
+ "obeli-sk-boa-engine",
 ]
 
 [[package]]
@@ -2789,6 +2554,252 @@ checksum = "5c7398b9c8b70908f6371f47ed36737907c87c52af34c268fed0bf0ceb92ead9"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "obeli-sk-boa-ast"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "arbitrary",
+ "bitflags",
+ "indexmap",
+ "num-bigint 0.5.1",
+ "obeli-sk-boa-interner",
+ "obeli-sk-boa-macros",
+ "obeli-sk-boa-string",
+ "rustc-hash 2.1.3",
+ "serde",
+ "strum",
+]
+
+[[package]]
+name = "obeli-sk-boa-engine"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "aligned-vec",
+ "arrayvec",
+ "async-channel",
+ "bitflags",
+ "bytemuck",
+ "cfg-if",
+ "cow-utils",
+ "criterion",
+ "dashmap",
+ "data-encoding",
+ "data-encoding-macro",
+ "dynify",
+ "either",
+ "fast-float2",
+ "fixed_decimal",
+ "float-cmp",
+ "float16",
+ "futures-concurrency",
+ "futures-lite",
+ "getrandom 0.4.3",
+ "hashbrown 0.17.1",
+ "husky-rs",
+ "iana-time-zone",
+ "icu_calendar",
+ "icu_casemap",
+ "icu_collator",
+ "icu_datetime",
+ "icu_decimal",
+ "icu_list",
+ "icu_locale",
+ "icu_normalizer",
+ "icu_plurals",
+ "icu_provider",
+ "icu_segmenter",
+ "icu_time",
+ "indexmap",
+ "indoc",
+ "intrusive-collections",
+ "itertools 0.15.0",
+ "jemallocator",
+ "lz4_flex",
+ "num-bigint 0.5.1",
+ "num-integer",
+ "num-traits",
+ "num_enum",
+ "obeli-sk-boa-ast",
+ "obeli-sk-boa-gc",
+ "obeli-sk-boa-icu-provider",
+ "obeli-sk-boa-interner",
+ "obeli-sk-boa-macros",
+ "obeli-sk-boa-parser",
+ "obeli-sk-boa-string",
+ "obeli-sk-small-btree",
+ "obeli-sk-tag-ptr",
+ "oneshot",
+ "pastey",
+ "portable-atomic",
+ "rand",
+ "regress",
+ "rustc-hash 2.1.3",
+ "ryu-js",
+ "serde",
+ "serde_json",
+ "static_assertions",
+ "sys-locale",
+ "tap",
+ "temporal_rs",
+ "test-case",
+ "textwrap",
+ "thin-vec",
+ "thiserror",
+ "time",
+ "timezone_provider",
+ "tinystr",
+ "web-time",
+ "writeable",
+ "xsum",
+ "yoke",
+ "zerofrom",
+]
+
+[[package]]
+name = "obeli-sk-boa-gc"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "arrayvec",
+ "either",
+ "hashbrown 0.17.1",
+ "icu_locale_core",
+ "obeli-sk-boa-macros",
+ "obeli-sk-boa-string",
+ "thin-vec",
+]
+
+[[package]]
+name = "obeli-sk-boa-icu-provider"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "icu_calendar",
+ "icu_casemap",
+ "icu_collator",
+ "icu_datetime",
+ "icu_decimal",
+ "icu_list",
+ "icu_locale",
+ "icu_locale_fallback",
+ "icu_normalizer",
+ "icu_plurals",
+ "icu_provider",
+ "icu_provider_adapters",
+ "icu_provider_blob",
+ "icu_segmenter",
+ "icu_time",
+ "once_cell",
+ "pastey",
+]
+
+[[package]]
+name = "obeli-sk-boa-interner"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "arbitrary",
+ "hashbrown 0.17.1",
+ "indexmap",
+ "obeli-sk-boa-gc",
+ "obeli-sk-boa-macros",
+ "once_cell",
+ "phf",
+ "rustc-hash 2.1.3",
+ "serde",
+ "static_assertions",
+]
+
+[[package]]
+name = "obeli-sk-boa-macros"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "cfg-if",
+ "cow-utils",
+ "lz4_flex",
+ "proc-macro2",
+ "quote",
+ "syn 3.0.4",
+ "synstructure 0.14.0",
+ "test-case",
+]
+
+[[package]]
+name = "obeli-sk-boa-parser"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "bitflags",
+ "fast-float2",
+ "icu_properties",
+ "indoc",
+ "num-bigint 0.5.1",
+ "num-traits",
+ "obeli-sk-boa-ast",
+ "obeli-sk-boa-interner",
+ "obeli-sk-boa-macros",
+ "regress",
+ "rustc-hash 2.1.3",
+ "strum",
+]
+
+[[package]]
+name = "obeli-sk-boa-runtime"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "bus",
+ "bytemuck",
+ "either",
+ "futures",
+ "futures-lite",
+ "http",
+ "indoc",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-gc",
+ "obeli-sk-boa-wintertc",
+ "reqwest",
+ "rstest",
+ "rustc-hash 2.1.3",
+ "serde_json",
+ "temp-env",
+ "test-case",
+ "textwrap",
+ "url",
+]
+
+[[package]]
+name = "obeli-sk-boa-string"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "fast-float2",
+ "itoa",
+ "pastey",
+ "rustc-hash 2.1.3",
+ "ryu-js",
+ "static_assertions",
+]
+
+[[package]]
+name = "obeli-sk-boa-wintertc"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "base64 0.23.1",
+ "comfy-table",
+ "futures-lite",
+ "indoc",
+ "obeli-sk-boa-engine",
+ "obeli-sk-boa-gc",
+ "rustc-hash 2.1.3",
+ "textwrap",
+]
+
+[[package]]
+name = "obeli-sk-small-btree"
+version = "1.0.0-obeli-sk.12"
+dependencies = [
+ "arrayvec",
+]
+
+[[package]]
+name = "obeli-sk-tag-ptr"
+version = "1.0.0-obeli-sk.12"
 
 [[package]]
 name = "object"
@@ -3692,13 +3703,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5"
 
 [[package]]
-name = "small_btree"
-version = "0.1.0"
-dependencies = [
- "arrayvec",
-]
-
-[[package]]
 name = "smallvec"
 version = "1.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3871,10 +3875,6 @@ checksum = "8eab9a99a024a169fe8a903cf9d4a3b3601109bcc13bd9e3c6fff259138626c4"
 dependencies = [
  "libc",
 ]
-
-[[package]]
-name = "tag_ptr"
-version = "0.1.0"
 
 [[package]]
 name = "tap"
