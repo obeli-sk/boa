@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "boa_cli"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "async-channel",
  "clap",
@@ -362,7 +362,7 @@ dependencies = [
 
 [[package]]
 name = "boa_examples"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "futures-concurrency",
  "futures-lite",
@@ -381,7 +381,7 @@ dependencies = [
 
 [[package]]
 name = "boa_macros_tests"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "obeli-sk-boa-engine",
  "obeli-sk-boa-gc",
@@ -390,7 +390,7 @@ dependencies = [
 
 [[package]]
 name = "boa_tester"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "bitflags",
  "clap",
@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "boa_wasm"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "console_error_panic_hook",
  "obeli-sk-boa-engine",
@@ -1334,7 +1334,7 @@ dependencies = [
 
 [[package]]
 name = "gen-icu4x-data"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "icu_calendar",
  "icu_casemap",
@@ -2123,7 +2123,7 @@ dependencies = [
 
 [[package]]
 name = "insta-bytecode"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "insta",
  "obeli-sk-boa-engine",
@@ -2557,7 +2557,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-ast"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "arbitrary",
  "bitflags",
@@ -2573,7 +2573,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-engine"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "aligned-vec",
  "arrayvec",
@@ -2658,7 +2658,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-gc"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "arrayvec",
  "either",
@@ -2671,7 +2671,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-icu-provider"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "icu_calendar",
  "icu_casemap",
@@ -2694,7 +2694,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-interner"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "arbitrary",
  "hashbrown 0.17.1",
@@ -2710,7 +2710,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-macros"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "cfg-if",
  "cow-utils",
@@ -2724,7 +2724,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-parser"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "bitflags",
  "fast-float2",
@@ -2742,7 +2742,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-runtime"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "bus",
  "bytemuck",
@@ -2766,7 +2766,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-string"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "fast-float2",
  "itoa",
@@ -2778,7 +2778,7 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-boa-wintertc"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "base64 0.23.1",
  "comfy-table",
@@ -2792,14 +2792,14 @@ dependencies = [
 
 [[package]]
 name = "obeli-sk-small-btree"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 dependencies = [
  "arrayvec",
 ]
 
 [[package]]
 name = "obeli-sk-tag-ptr"
-version = "1.0.0-obeli-sk.12"
+version = "1.0.0-obeli-sk.13"
 
 [[package]]
 name = "object"
