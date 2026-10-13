@@ -1,5 +1,5 @@
 [package]
-name = "boa_icu_provider"
+name = "obeli-sk-boa-icu-provider"
 description = "ICU4X data provider for the Boa JavaScript engine."
 keywords = ["javascript", "cldr", "unicode"]
 categories = ["internationalization", "no-std"]
@@ -38,3 +38,6 @@ workspace = true
 
 [package.metadata.docs.rs]
 all-features = true
+
+[lib]
+name = "boa_icu_provider"
