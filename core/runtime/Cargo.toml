@@ -1,5 +1,5 @@
 [package]
-name = "boa_runtime"
+name = "obeli-sk-boa-runtime"
 description = "Example runtime for the Boa JavaScript engine."
 keywords = ["javascript", "js", "runtime"]
 categories = ["command-line-utilities"]
@@ -61,3 +61,6 @@ reqwest-blocking = ["dep:reqwest", "reqwest/blocking"]
 process = []
 annex-b = ["boa_engine/annex-b"]
 test262 = ["dep:bus"]
+
+[lib]
+name = "boa_runtime"

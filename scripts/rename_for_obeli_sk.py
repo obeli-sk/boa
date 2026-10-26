@@ -122,6 +122,14 @@ for old_name, new_name in RENAMES.items():
         print(f"WARNING: no name replacement made in {cargo_toml}")
     else:
         print(f"  {old_name!s:30s} -> {new_name}")
+    # Keep self-imports in integration tests and doctests valid after renaming.
+    lib = re.search(r'^\[lib\]\n(.*?)(?=^\[|\Z)', updated, flags=re.MULTILINE | re.DOTALL)
+    if lib is None:
+        updated += f'\n[lib]\nname = "{old_name}"\n'
+    elif not re.search(r'^name\s*=', lib.group(1), flags=re.MULTILINE):
+        updated = updated[:lib.start()] + updated[lib.start():].replace(
+            '[lib]\n', f'[lib]\nname = "{old_name}"\n', 1
+        )
     if updated != original_content:
         cargo_toml.write_text(updated)
 

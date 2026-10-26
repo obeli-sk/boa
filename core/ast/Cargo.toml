@@ -1,5 +1,5 @@
 [package]
-name = "boa_ast"
+name = "obeli-sk-boa-ast"
 description = "Abstract Syntax Tree definition for the Boa JavaScript engine."
 keywords = ["javascript", "js", "syntax", "ast"]
 categories = ["parser-implementations", "compilers"]
@@ -32,3 +32,6 @@ workspace = true
 
 [package.metadata.docs.rs]
 all-features = true
+
+[lib]
+name = "boa_ast"
